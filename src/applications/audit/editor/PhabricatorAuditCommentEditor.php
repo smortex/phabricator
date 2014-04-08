@@ -50,4 +50,77 @@ final class PhabricatorAuditCommentEditor extends PhabricatorEditor {
     );
   }
 
+  public static function newReplyHandlerForCommit($commit) {
+    $reply_handler = PhabricatorEnv::newObjectFromConfig(
+      'metamta.diffusion.reply-handler');
+    $reply_handler->setMailReceiver($commit);
+    return $reply_handler;
+  }
+
+  private function renderMailBody(
+    PhabricatorAuditComment $comment,
+    $cname,
+    PhabricatorObjectHandle $handle,
+    PhabricatorMailReplyHandler $reply_handler,
+    array $inline_comments) {
+    assert_instances_of($inline_comments, 'PhabricatorInlineCommentInterface');
+
+    $commit = $this->commit;
+    $actor = $this->getActor();
+    $name = $actor->getUsername();
+
+    $verb = PhabricatorAuditActionConstants::getActionPastTenseVerb(
+      $comment->getAction());
+
+    $body = new PhabricatorMetaMTAMailBody();
+    if (!PhabricatorEnv::getEnvConfig('minimal-email', false)) {
+      $body->addRawSection("{$name} {$verb} commit {$cname}.");
+    }
+    $body->addRawSection($comment->getContent());
+
+    if ($inline_comments) {
+      $block = array();
+
+      $path_map = id(new DiffusionPathQuery())
+        ->withPathIDs(mpull($inline_comments, 'getPathID'))
+        ->execute();
+      $path_map = ipull($path_map, 'path', 'id');
+
+      foreach ($inline_comments as $inline) {
+        $path = idx($path_map, $inline->getPathID());
+        if ($path === null) {
+          continue;
+        }
+
+        $start = $inline->getLineNumber();
+        $len   = $inline->getLineLength();
+        if ($len) {
+          $range = $start.'-'.($start + $len);
+        } else {
+          $range = $start;
+        }
+
+        $content = $inline->getContent();
+        $block[] = "{$path}:{$range} {$content}";
+      }
+
+      if (!PhabricatorEnv::getEnvConfig('minimal-email', false)) {
+        $body->addTextSection(pht('INLINE COMMENTS'), implode("\n", $block));
+      } else {
+        $body->addRawSection(implode("\n", $block));
+      }
+    }
+
+    if (!PhabricatorEnv::getEnvConfig('minimal-email', false)) {
+      $body->addTextSection(
+        pht('COMMIT'),
+        PhabricatorEnv::getProductionURI($handle->getURI()));
+      $body->addReplySection($reply_handler->getReplyHandlerInstructions());
+    } else {
+      $body->addRawSection(PhabricatorEnv::getProductionURI(
+        $handle->getURI()));
+    }
+
+    return $body->render();
+  }
 }

@@ -2314,6 +2314,9 @@ abstract class PhabricatorApplicationTransactionEditor
 
     $mail = $this->buildMailTemplate($object);
     $body = $this->buildMailBody($object, $xactions);
+    if (!$body) {
+      return null;
+    }
 
     $mail_tags = $this->getMailTags($object, $xactions);
     $action = $this->getMailAction($object, $xactions);
@@ -2591,7 +2594,12 @@ abstract class PhabricatorApplicationTransactionEditor
         $comments[] = $comment;
       }
     }
-    $body->addRawSection(implode("\n", $headers));
+
+    $body = new PhabricatorMetaMTAMailBody();
+
+    if (!PhabricatorEnv::getEnvConfig('minimal-email', false)) {
+      $body->addRawSection(implode("\n", $headers));
+    }
 
     foreach ($comments as $comment) {
       $body->addRemarkupSection($comment);
