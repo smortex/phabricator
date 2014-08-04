@@ -31,3 +31,6 @@
 
 # NPM local packages
 /support/aphlict/server/node_modules/
+
+# User extensions
+# /src/extensions/*
