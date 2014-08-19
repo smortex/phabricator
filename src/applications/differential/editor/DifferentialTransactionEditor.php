@@ -1179,7 +1179,8 @@ final class DifferentialTransactionEditor
     if (PhabricatorEnv::getEnvConfig('minimal-email', false)) {
       if ($inlines) {
         $body->addRawSection(
-          $this->renderInlineCommentsForMail($object, $inlines));
+          $this->renderInlineCommentsForMail($object, $inlines)
+            ->getPlaintext());
       }
 
       if ($update_xaction || trim($body->render()) != "") {
