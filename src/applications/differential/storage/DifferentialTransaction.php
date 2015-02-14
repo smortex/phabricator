@@ -281,7 +281,7 @@ final class DifferentialTransaction extends PhabricatorApplicationTransaction {
       case self::TYPE_STATUS:
         switch ($this->getNewValue()) {
           case ArcanistDifferentialRevisionStatus::ACCEPTED:
-            return pht('This revision is now accepted and ready to land.');
+          return pht('This revision has a positive review.');
           case ArcanistDifferentialRevisionStatus::NEEDS_REVISION:
             return pht('This revision now requires changes to proceed.');
           case ArcanistDifferentialRevisionStatus::NEEDS_REVIEW:
@@ -434,7 +434,7 @@ final class DifferentialTransaction extends PhabricatorApplicationTransaction {
         switch ($this->getNewValue()) {
           case ArcanistDifferentialRevisionStatus::ACCEPTED:
             return pht(
-              '%s is now accepted and ready to land.',
+              '%s has a positive review.',
               $object_link);
           case ArcanistDifferentialRevisionStatus::NEEDS_REVISION:
             return pht(
