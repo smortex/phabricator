@@ -13,6 +13,13 @@ final class PhabricatorAuthRegisterController
     $this->accountKey = idx($data, 'akey');
   }
 
+  private function emailToUsername($email) {
+        $mangled_email = str_ireplace('@freebsd.org', '', $email);
+        $mangled_email = str_replace('@', '_', $mangled_email);
+        $mangled_email = str_replace('+', '_', $mangled_email);
+        return $mangled_email;
+  }
+
   public function processRequest() {
     $request = $this->getRequest();
 
@@ -61,7 +68,7 @@ final class PhabricatorAuthRegisterController
 
     $user = new PhabricatorUser();
 
-    $default_username = $account->getUsername();
+    $default_username = $this->emailToUsername($account->getEmail());
     $default_realname = $account->getRealName();
 
     $default_email = $account->getEmail();
@@ -151,7 +158,7 @@ final class PhabricatorAuthRegisterController
     $default_email = $profile->getDefaultEmail();
     $default_realname = $profile->getDefaultRealName();
 
-    $can_edit_username = $profile->getCanEditUsername();
+    $can_edit_username = false;
     $can_edit_email = $profile->getCanEditEmail();
     $can_edit_realname = $profile->getCanEditRealName();
 
@@ -264,6 +271,10 @@ final class PhabricatorAuthRegisterController
         } else {
           $e_email = null;
         }
+      }
+
+      if ($account->getAccountType() != 'ldap') {
+        $value_username = $this->emailToUsername($value_email);
       }
 
       if ($can_edit_realname) {
