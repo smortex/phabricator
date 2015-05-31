@@ -46,7 +46,7 @@ final class PhabricatorBotObjectNameHandler extends PhabricatorBotHandler {
         $pattern =
           '@'.
           '(?<![/:#-])(?:^|\b)'.
-          '([A-Z])(\d+)'.
+          '([ABD-Z])(\d+)'.  # don't include C due to Cx states
           '(?:\b|$)'.
           '@';
 
