@@ -7,7 +7,7 @@ final class PhabricatorBotFeedNotificationHandler
   extends PhabricatorBotHandler {
 
   private $startupDelay = 30;
-  private $lastSeenChronoKey = 0;
+  private $lastSeenChronoKey = "0";
 
   private $typesNeedURI = array('DREV', 'TASK');
 
@@ -94,7 +94,7 @@ final class PhabricatorBotFeedNotificationHandler
 
       return;
     }
-    if ($this->lastSeenChronoKey == 0) {
+    if ($this->lastSeenChronoKey == "0") {
       // Since we only want to post notifications about new stories, skip
       // everything that's happened in the past when we start up so we'll
       // only process real-time stories.
@@ -125,7 +125,7 @@ final class PhabricatorBotFeedNotificationHandler
         'feed.query',
         array(
           'limit' => $config_page_size,
-          'after' => $chrono_key_cursor,
+          'before' => $chrono_key_cursor,
           'view' => 'text',
         ));
 
@@ -161,7 +161,7 @@ final class PhabricatorBotFeedNotificationHandler
           $message .= ' '.$objects[$story['objectPHID']]['uri'];
         }
 
-        $channels = $this->getConfig('join');
+        $channels = $this->getConfig('notification.channels');
         foreach ($channels as $channel_name) {
           $trueName = explode(" ", $trueName);
 
