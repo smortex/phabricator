@@ -166,6 +166,15 @@ final class DifferentialChangesetViewController extends DifferentialController {
 
     $parser->readParametersFromRequest($request);
 
+    $generated_paths = id(new DifferentialDiffProperty())->loadOneWhere(
+      'diffID = %d AND name = %s',
+      $changeset->getDiffID(),
+      'arc:generated');
+
+    if ($generated_paths) {
+      $parser->setGeneratedPaths($generated_paths->getData());
+    }
+
     if ($left && $right) {
       $parser->setOriginals($left, $right);
     }

@@ -46,6 +46,7 @@ final class DifferentialChangesetParser extends Phobject {
   private $renderer;
   private $characterEncoding;
   private $highlightAs;
+  private $generatedPaths = array();
   private $highlightingDisabled;
   private $showEditAndReplyLinks = true;
   private $canMarkDone;
@@ -97,6 +98,14 @@ final class DifferentialChangesetParser extends Phobject {
 
   public function getCharacterEncoding() {
     return $this->characterEncoding;
+  }
+
+  public function setGeneratedPaths(array $paths) {
+    $this->generatedPaths = $paths;
+  }
+
+  public function getGeneratedPaths() {
+    return $this->generatedPaths;
   }
 
   public function setRenderer(DifferentialChangesetRenderer $renderer) {
@@ -495,8 +504,19 @@ final class DifferentialChangesetParser extends Phobject {
     $generated_guess = (strpos($new_corpus_block, '@'.'generated') !== false);
 
     if (!$generated_guess) {
-      $generated_path_regexps = PhabricatorEnv::getEnvConfig(
-        'differential.generated-paths');
+      foreach ($this->generatedPaths as $regex) {
+        if (preg_match($regex, $this->changeset->getFilename())) {
+          $generated_guess = true;
+          break;
+        }
+      }
+    }
+
+    // The following is deprecated and should not be used.
+    if (!$generated_guess) {
+      $key = 'differential.generated-paths';
+      $generated_path_regexps = PhabricatorEnv::getEnvConfig($key);
+
       foreach ($generated_path_regexps as $regexp) {
         if (preg_match($regexp, $this->changeset->getFilename())) {
           $generated_guess = true;
