@@ -14,8 +14,10 @@ There are a few approaches available:
 | Receive Mail With | Setup | Cost | Notes |
 |--------|-------|------|-------|
 | Mailgun | Easy | Cheap | Recommended |
-| SendGrid | Easy | Cheap | |
-| Local MTA | Extremely Difficult | Free | Strongly discouraged! |
+| SendGrid | Easy | Expensive | |
+| Local MTA (Postfix) | Moderately Difficult | Free | Discouraged |
+| Local MTA (Sendmail) | Extremely Difficult | Free | Strongly discouraged! |
+| Local MTA (Lamson) | Moderately Difficult | Free | Discouraged |
 
 The remainder of this document walks through configuring Phabricator to
 receive mail, and then configuring your chosen transport to deliver mail
@@ -174,6 +176,41 @@ If you get a linker error like this:
 ...you need to edit your php.ini file so that mbstring.so is loaded **before**
 mailparse.so. This is not the default if you have individual files in
 `php.d/`.
+
+= Local MTA: Configuring Postfix =
+
+Postfix is relatively easy to configure, and is suitable for production use.
+
+Before you can configure Postfix, you need to install Mailparse. See the section
+"Installing Mailparse" above.
+
+You must also:
+  - Properly configure DNS with an appropriate MX record
+  - Properly configure Postfix to listen on external interfaces
+  - Configure your firewal to open port 25 (if needed)
+  - Restart Postfix
+
+Once you have completed the above, add the following to your aliases file:
+
+  phabricator: |/path/to/phabricator/scripts/mail/mail_handler.php
+
+After doing so, run
+  $ postalias /path/to/your/aliasfile
+then restart Postfix.
+
+A minimal Postfix configuration file (main.cf) could look something like the
+following. This was taken from a FreeBSD host, and is not entirely complete.
+It is provided for reference only.
+
+  myhostname = phabricator.domain.com
+  mydomain = domain.com
+  myorigin = $mydomain
+  mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+  unknown_local_recipient_reject_code = 550
+  mynetworks_style = host
+  relay_domains = $mydestination
+  alias_maps = hash:/usr/local/etc/postfix/aliases
+  inet_protocols = all
 
 = Local MTA: Configuring Sendmail =
 
