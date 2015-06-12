@@ -134,6 +134,9 @@ final class PhabricatorProjectTransactionEditor
           $add_slug_template = id(new PhabricatorProjectSlug())
             ->setProjectPHID($object->getPHID());
           foreach ($add as $add_slug_str) {
+            if ($add_slug_str === $object->getPrimarySlug()) {
+              continue;
+            }
             $add_slug = id(clone $add_slug_template)
               ->setSlug($add_slug_str)
               ->save();
