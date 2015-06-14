@@ -308,7 +308,7 @@ abstract class PhabricatorController extends AphrontController {
   public function buildApplicationPage($view, array $options) {
     $page = $this->buildStandardPageView();
 
-    $title = PhabricatorEnv::getEnvConfig('phabricator.serious-business') ?
+    $title = false ?
       'Phabricator' :
       pht('Bacon Ice Cream for Breakfast');
 
