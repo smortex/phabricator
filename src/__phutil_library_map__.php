@@ -4670,6 +4670,7 @@ phutil_register_library_map(array(
     'NuanceItem' => array(
       'NuanceDAO',
       'PhabricatorPolicyInterface',
+      'PhabricatorApplicationTransactionInterface',
     ),
     'NuanceItemEditController' => 'NuanceController',
     'NuanceItemEditor' => 'PhabricatorApplicationTransactionEditor',
