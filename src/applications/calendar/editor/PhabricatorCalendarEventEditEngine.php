@@ -202,7 +202,7 @@ final class PhabricatorCalendarEventEditEngine
 
       // NOTE: We're being a little sneaky here. This field is hidden and
       // always has the value "true", so it makes the event recurring when you
-      // submit a form which contains the field. Then we put the the field on
+      // submit a form which contains the field. Then we put the field on
       // the "recurring" page in the "Make Recurring" dialog to simplify the
       // workflow. This is still normal, explicit field from the perspective
       // of the API.

@@ -447,7 +447,7 @@ final class DiffusionRepositoryClusterEngine extends Phobject {
     // For example, the master database may have been restarted between the
     // time we acquired the global lock and now, when the push has finished.
 
-    // We wrote a durable lock while we were holding the the global lock,
+    // We wrote a durable lock while we were holding the global lock,
     // essentially upgrading our lock. We can still safely release this upgraded
     // lock even if we're no longer holding the global lock.
 
